@@ -10,6 +10,16 @@ Run a local Jenkins CI server against a GitHub repository
 - Download `ngrok.exe` into `./bin` from https://ngrok.com/
 - Authorize NGrok: `./bin/ngrok authtoken <YOUR_AUTHTOKEN>`
 
+## Configure GitHub
+
+- GitHub, Account, Settings, Developer Settings, Personal Access Tokens
+- Scopes: `admin:repo_hook`, `repo`
+
+## Run NGrok
+
+- Reserve subdomain: `xpqf` in region `eu`
+- Connect: `./bin/ngrok http -hostname=xpqf.eu.ngrok.io -region=eu 8080`
+
 ## Run Jenkins
 
 - Run Jenkins
@@ -18,20 +28,36 @@ Run a local Jenkins CI server against a GitHub repository
 - Follow instructions:
   - Unlock
   - Install suggested plugins
-
-## Run NGrok
-
-- Connect: `./bin/ngrok http -hostname=xpqf.eu.ngrok.io -region=eu 8080`
+  - Create first admin user
+  - Jenkins URL: https://xpqf.eu.ngrok.io/
 - Open https://xpqf.eu.ngrok.io/
 
-## Create job
+## Configure Jenkins for GitHub
 
-- Create job:
-  - New item, "jenkins-sample-project", Multibranch Pipeline
-  - Add source (GitHub: https://github.com/larsthorup/jenkins-sample-project)
-  - Save
+- GitHub Personal Access Token
+- Credentials, System, Global, Add
+  - ID: "GITHUB_ACCESS_TOKEN", secret text
+  - ID: "Github Personal Access Token", (username with) password credential
+- Configure System, Add Github Server, https://api.github.com
+  - Credentials, GITHUB_ACCESS_TOKEN
+  - Manage hooks
+- Configure System, Github API Usage,
+  - Never check rate limit
 
-## TODO
+## Create job in Jenkins for GitHub project
 
-- Configure GitHub to trigger a build
-- Configure Jenkins to set build status
+- New item, "jenkins-sample-project", Multibranch Pipeline
+- Add source, GitHub
+  - Add GitHub credentials
+  - https://github.com/larsthorup/jenkins-sample-project
+- Save
+
+## Configure project on GitHub for Jenkins
+
+- GitHub, project, settings, webhooks, add
+- https://xpqf.eu.ngrok.io/github-webhook/
+- Github, project, settings, branches
+  - \*
+  - Require status checks to pass before merging
+  - continuous-integration/jenkins/pr-merge
+  - Allow Deletions
